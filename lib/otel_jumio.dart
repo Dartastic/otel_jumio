@@ -1,0 +1,9 @@
+// Licensed under the Apache License, Version 2.0
+// Copyright 2025, Mindful Software LLC, All rights reserved.
+
+/// OpenTelemetry bridge for Jumio KYX (account creation, transactions,
+/// ID verification, screening, eMRTD, biometric authentication).
+library;
+
+export 'src/otel_jumio.dart';
+export 'src/otel_jumio_suppression.dart';
