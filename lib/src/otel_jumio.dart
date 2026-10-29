@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_jumio_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_jumio';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class JumioResult {
+  /// Creates a result.
   const JumioResult({
     this.accountId,
     this.workflowExecutionId,
@@ -62,8 +63,13 @@ class JumioResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class JumioCallResult<T> {
+  /// Creates a call result.
   const JumioCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final JumioResult? result;
 }
@@ -93,26 +99,26 @@ Future<T> tracedJumio<T>({
   final span = _tracer().startSpan(
     'jumio $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
     if (r.result != null) {
       final extras = <Attribute<Object>>[];
       if (r.result!.accountId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'jumio.account.id',
           r.result!.accountId!,
         ));
       }
       if (r.result!.workflowExecutionId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'jumio.workflow_execution.id',
           r.result!.workflowExecutionId!,
         ));
       }
       if (r.result!.status != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'jumio.status',
           r.result!.status!,
         ));
@@ -125,7 +131,7 @@ Future<T> tracedJumio<T>({
         }
       }
       if (r.result!.decision != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'jumio.decision',
           r.result!.decision!,
         ));
@@ -137,43 +143,43 @@ Future<T> tracedJumio<T>({
         }
       }
       if (r.result!.workflowDefinitionId != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'jumio.workflow_definition.id',
           r.result!.workflowDefinitionId!,
         ));
       }
       if (r.result!.capabilitiesUsed != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'jumio.capabilities',
           r.result!.capabilitiesUsed!,
         ));
       }
       if (r.result!.idType != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'jumio.id.type',
           r.result!.idType!,
         ));
       }
       if (r.result!.usabilityScore != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'jumio.usability.score',
           r.result!.usabilityScore!,
         ));
       }
       if (r.result!.dataCenter != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'jumio.data_center',
           r.result!.dataCenter!,
         ));
       }
       if (r.result!.requestId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'jumio.request.id',
           r.result!.requestId!,
         ));
       }
       if (r.result!.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           r.result!.statusCode!,
         ));
@@ -184,13 +190,13 @@ Future<T> tracedJumio<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
